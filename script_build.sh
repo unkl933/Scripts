@@ -4,12 +4,14 @@
 
 # Clone this script in your ROM Repo using following commands.
 # cd rom_repo
-# curl https://raw.githubusercontent.com/LegacyServer/Scripts/master/script_build.sh > script_build.sh
+# curl https://raw.githubusercontent.com/unkl933/Scripts/master/script_build.sh > script_build.sh
 
 # Some User's Details. Please fill it with your own details.
 
 # Replace "legacy" with your own SSH Username in lowercase
-username=legacy
+username=jenkins
+
+username=clashteam_id
 
 # Colors makes things beautiful
 export TERM=xterm
@@ -25,25 +27,27 @@ export TERM=xterm
 if [ "$use_ccache" = "yes" ];
 then
 echo -e ${blu}"CCACHE is enabled for this build"${txtrst}
-export CCACHE_EXEC=$(which ccache)
+export CCACHE_EXEC=/usr/bin/ccache
 export USE_CCACHE=1
-export CCACHE_DIR=/home/ccache/$username
-ccache -M 75G
+export CCACHE_DIR=/mnt/ccache
+ccache -M 100G
+export CCACHE_COMPRESS=1
 fi
 
 if [ "$use_ccache" = "clean" ];
 then
-export CCACHE_EXEC=$(which ccache)
-export CCACHE_DIR=/home/ccache/$username
+export CCACHE_EXEC=/usr/bin/ccache
+export CCACHE_DIR=/mnt/ccache
 ccache -C
 export USE_CCACHE=1
-ccache -M 75G
+export CCACHE_COMPRESS=1
+ccache -M 100G
 wait
 echo -e ${grn}"CCACHE Cleared"${txtrst};
 fi
 
 # Prepare Environment and Device
-source build/envsetup.sh
+. build/envsetup.sh
 lunch "$lunch_command"_"$device_codename"-"$build_type"
 
 # Its Clean Time
@@ -63,4 +67,4 @@ echo -e ${cya}"Images deleted from OUT dir"${txtrst};
 fi
 
 # Build ROM
-make "$target_command" -j"$jobs"
+mka "$target_command" -j"$jobs"
